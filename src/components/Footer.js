@@ -115,7 +115,7 @@ export default function Footer() {
         >
           {/* Facebook */}
           <motion.a
-            href="#"
+            href="www.linkedin.com/in/ochieng-o-rodgers"
             aria-label="Facebook"
             className="hover:text-red-300"
             whileHover={{ scale: 1.2 }}
@@ -125,7 +125,7 @@ export default function Footer() {
 
           {/* Instagram */}
           <motion.a
-            href="#"
+            href="www.linkedin.com/in/ochieng-o-rodgers"
             aria-label="Instagram"
             className="hover:text-red-300"
             whileHover={{ scale: 1.2 }}
@@ -135,7 +135,7 @@ export default function Footer() {
 
           {/* TikTok */}
           <motion.a
-            href="#"
+            href="www.linkedin.com/in/ochieng-o-rodgers"
             aria-label="TikTok"
             className="hover:text-red-300"
             whileHover={{ scale: 1.2 }}
@@ -145,7 +145,7 @@ export default function Footer() {
 
           {/* LinkedIn */}
           <motion.a
-            href="#"
+            href="www.linkedin.com/in/ochieng-o-rodgers"
             aria-label="LinkedIn"
             className="hover:text-red-300"
             whileHover={{ scale: 1.2 }}
