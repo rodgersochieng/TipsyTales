@@ -1,5 +1,6 @@
 
-// import React, { useState } from 'react';
+// // File: src/components/Post.jsx
+// import React, { useState, useEffect } from 'react';
 // import { useParams } from 'react-router-dom';
 // import { Heart } from 'lucide-react';
 // import CommentSection from './Comment';
@@ -9,16 +10,32 @@
 
 // const Post = () => {
 //   const { postId } = useParams();
-//   const postIndex = mockPosts.findIndex(p => p.id === parseInt(postId, 10));
-  
-//   if (postIndex === -1) return <div>Post not found.</div>;
-  
-//   const post = mockPosts[postIndex];
-//   const [liked, setLiked] = useState(post.likedBy.includes('currentUser'));
-//   const [likes, setLikes] = useState(post.likes);
-//   const [comments, setComments] = useState(post.comments);
+//   const [post, setPost] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [liked, setLiked] = useState(false);
+//   const [likes, setLikes] = useState(0);
+//   const [comments, setComments] = useState([]);
+
+//   // Find the post after component mounts
+//   useEffect(() => {
+//     const foundPost = mockPosts.find(p => p.id === parseInt(postId, 10));
+    
+//     if (foundPost) {
+//       setPost(foundPost);
+//       setLiked(foundPost.likedBy.includes('currentUser'));
+//       setLikes(foundPost.likes);
+//       setComments(foundPost.comments);
+//     }
+    
+//     setLoading(false);
+//   }, [postId]);
 
 //   const handleLike = () => {
+//     if (!post) return;
+    
+//     const postIndex = mockPosts.findIndex(p => p.id === post.id);
+//     if (postIndex === -1) return;
+
 //     if (liked) {
 //       setLikes(likes - 1);
 //       mockPosts[postIndex].likes = likes - 1;
@@ -32,12 +49,22 @@
 //   };
 
 //   const handleAddComment = (comment) => {
+//     if (!post) return;
+    
+//     const postIndex = mockPosts.findIndex(p => p.id === post.id);
+//     if (postIndex === -1) return;
+
 //     const updatedComments = [...comments, comment];
 //     setComments(updatedComments);
 //     mockPosts[postIndex].comments = updatedComments;
 //   };
 
 //   const handleAddReply = (commentId, reply) => {
+//     if (!post) return;
+    
+//     const postIndex = mockPosts.findIndex(p => p.id === post.id);
+//     if (postIndex === -1) return;
+
 //     const updatedComments = comments.map(comment => {
 //       if (comment.id === commentId) {
 //         return {
@@ -51,6 +78,14 @@
 //     setComments(updatedComments);
 //     mockPosts[postIndex].comments = updatedComments;
 //   };
+
+//   if (loading) {
+//     return <div>Loading...</div>;
+//   }
+
+//   if (!post) {
+//     return <div>Post not found.</div>;
+//   }
 
 //   return (
 //     <div>
@@ -87,93 +122,37 @@
 
 
 
-// File: src/components/Post.jsx
-import React, { useState, useEffect } from 'react';
+
+/// File: src/components/Post.jsx
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import CommentSection from './Comment';
 
-// Import shared data
-import { mockPosts } from '../data/mockData';
-
-const Post = () => {
+const Post = ({ posts, onLikePost, onAddComment, onAddReply }) => {
   const { postId } = useParams();
-  const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+
+  // Move useState hooks to the top
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState([]);
 
-  // Find the post after component mounts
-  useEffect(() => {
-    const foundPost = mockPosts.find(p => p.id === parseInt(postId, 10));
-    
-    if (foundPost) {
-      setPost(foundPost);
-      setLiked(foundPost.likedBy.includes('currentUser'));
-      setLikes(foundPost.likes);
-      setComments(foundPost.comments);
-    }
-    
-    setLoading(false);
-  }, [postId]);
+  // Find the post after hooks are declared
+  const post = posts.find(p => p.id === parseInt(postId, 10));
+
+  // If post is not found, return early
+  if (!post) return <div>Post not found.</div>;
+
+  // Initialize state based on the post data
+  if (likes !== post.likes) setLikes(post.likes);
+  if (liked !== post.likedBy.includes('currentUser')) setLiked(post.likedBy.includes('currentUser'));
+  if (comments !== post.comments) setComments(post.comments);
 
   const handleLike = () => {
-    if (!post) return;
-    
-    const postIndex = mockPosts.findIndex(p => p.id === post.id);
-    if (postIndex === -1) return;
-
-    if (liked) {
-      setLikes(likes - 1);
-      mockPosts[postIndex].likes = likes - 1;
-      mockPosts[postIndex].likedBy = mockPosts[postIndex].likedBy.filter(id => id !== 'currentUser');
-    } else {
-      setLikes(likes + 1);
-      mockPosts[postIndex].likes = likes + 1;
-      mockPosts[postIndex].likedBy.push('currentUser');
-    }
+    onLikePost(post.id);
     setLiked(!liked);
+    setLikes(liked ? likes - 1 : likes + 1);
   };
-
-  const handleAddComment = (comment) => {
-    if (!post) return;
-    
-    const postIndex = mockPosts.findIndex(p => p.id === post.id);
-    if (postIndex === -1) return;
-
-    const updatedComments = [...comments, comment];
-    setComments(updatedComments);
-    mockPosts[postIndex].comments = updatedComments;
-  };
-
-  const handleAddReply = (commentId, reply) => {
-    if (!post) return;
-    
-    const postIndex = mockPosts.findIndex(p => p.id === post.id);
-    if (postIndex === -1) return;
-
-    const updatedComments = comments.map(comment => {
-      if (comment.id === commentId) {
-        return {
-          ...comment,
-          replies: [...(comment.replies || []), reply]
-        };
-      }
-      return comment;
-    });
-    
-    setComments(updatedComments);
-    mockPosts[postIndex].comments = updatedComments;
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!post) {
-    return <div>Post not found.</div>;
-  }
 
   return (
     <div>
@@ -199,8 +178,8 @@ const Post = () => {
       
       <CommentSection 
         comments={comments} 
-        onAddComment={handleAddComment} 
-        onAddReply={handleAddReply}
+        onAddComment={(comment) => onAddComment(post.id, comment)} 
+        onAddReply={(commentId, reply) => onAddReply(post.id, commentId, reply)} 
       />
     </div>
   );

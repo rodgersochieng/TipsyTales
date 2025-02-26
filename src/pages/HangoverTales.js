@@ -1,92 +1,91 @@
-// // import React from 'react';
-// // import { Routes, Route, Link, useMatch } from 'react-router-dom';
-// // import PostList from '../components/PostList';
-// // import Post from '../components/Post';
-// // import CreatePost from '../components/Post';
 
-// // const HangoverTales = () => {
-// //   const match = useMatch('/hangover-tales/*');
-// //   const { path, url } = match ? match : { path: '/hangover-tales', url: '/hangover-tales' };
-
-// //   return (
-// //     <div className="container mx-auto p-4">
-// //       <h1 className="text-3xl font-bold mb-4">Hangover Tales</h1>
-// //       <nav className="mb-4">
-// //         <Link to={url}>Home</Link> | <Link to={`${url}/create-post`}>Create Post</Link>
-// //       </nav>
-// //       <Routes>
-// //         <Route exact path={path} element={<PostList />} />
-// //         <Route path={`${path}/posts/:postId`} element={<Post />} />
-// //         <Route path={`${path}/create-post`} element={<CreatePost />} />
-// //       </Routes>
-// //     </div>
-// //   );
-// // };
-
-// // export default HangoverTales;
-
-
-// // File: src/pages/HangoverTales.jsx
-// import React from 'react';
-// import { Routes, Route, Link } from 'react-router-dom';
-// import PostList from '../components/PostList';
-// import Post from '../components/Post';
-// import CreatePost from '../components/CreatePost';
-
-// const HangoverTales = () => {
-//   return (
-//     <div className="container mx-auto p-4">
-//       <h1 className="text-3xl font-bold mb-4">Hangover Tales</h1>
-//       <nav className="mb-4">
-//         <Link to="/hangover-tales" className="text-blue-500 hover:underline mr-4">Home</Link>
-//         <Link to="/hangover-tales/create-post" className="text-blue-500 hover:underline">Create Post</Link>
-//       </nav>
-//       <Routes>
-//         <Route path="/" element={<PostList />} />
-//         <Route path="/posts/:postId" element={<Post />} />
-//         <Route path="/create-post" element={<CreatePost />} />
-//       </Routes>
-//     </div>
-//   );
-// };
-
-// export default HangoverTales;
-
-
-import React from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 import PostList from '../components/PostList';
 import Post from '../components/Post';
 import CreatePost from '../components/CreatePost';
+import { mockPosts as initialPosts } from '../data/mockData';
 
 const HangoverTales = () => {
-  const location = useLocation();
-  const basePath = "/hangover-tales";
-  
+  const [posts, setPosts] = useState(initialPosts);
+
+  const handleAddPost = (newPost) => {
+    setPosts([...posts, newPost]);
+  };
+
+  const handleLikePost = (postId) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        const currentUserLiked = post.likedBy.includes('currentUser');
+        return {
+          ...post,
+          likes: currentUserLiked ? post.likes - 1 : post.likes + 1,
+          likedBy: currentUserLiked
+            ? post.likedBy.filter(user => user !== 'currentUser')
+            : [...post.likedBy, 'currentUser']
+        };
+      }
+      return post;
+    });
+    setPosts(updatedPosts);
+  };
+
+  const handleAddComment = (postId, comment) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: [...post.comments, comment]
+        };
+      }
+      return post;
+    });
+    setPosts(updatedPosts);
+  };
+
+  const handleAddReply = (postId, commentId, reply) => {
+    const updatedPosts = posts.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: post.comments.map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), reply]
+              };
+            }
+            return comment;
+          })
+        };
+      }
+      return post;
+    });
+    setPosts(updatedPosts);
+  };
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-indigo-800">Hangover Tales</h1>
+    <div className="container mx-auto p-4 max-w-3xl">
+      <header className="mb-6">
+        <h1 className="text-4xl font-bold mb-2">Hangover Tales</h1>
+        <p className="text-gray-600">Share your wildest party stories!</p>
+        <nav className="mt-4 flex space-x-4">
+          <Link to="/hangover-tales" className="text-blue-500 hover:underline">Home</Link>
+          <Link to="/hangover-tales/create-post" className="text-blue-500 hover:underline">Share Your Story</Link>
+        </nav>
+      </header>
       
-      <nav className="mb-8 border-b pb-4">
-        <Link 
-          to={basePath} 
-          className={`mr-6 text-lg ${location.pathname === basePath ? 'text-indigo-600 font-semibold' : 'text-gray-600 hover:text-indigo-500'}`}
-        >
-          Home
-        </Link>
-        <Link 
-          to={`${basePath}/create-post`} 
-          className={`text-lg ${location.pathname === `${basePath}/create-post` ? 'text-indigo-600 font-semibold' : 'text-gray-600 hover:text-indigo-500'}`}
-        >
-          Share Your Tale
-        </Link>
-      </nav>
+      <main>
+        <Routes>
+          <Route path="/" element={<PostList posts={posts} onLikePost={handleLikePost} />} />
+          <Route path="/posts/:postId" element={<Post posts={posts} onLikePost={handleLikePost} onAddComment={handleAddComment} onAddReply={handleAddReply} />} />
+          <Route path="/create-post" element={<CreatePost onAddPost={handleAddPost} />} />
+        </Routes>
+      </main>
       
-      <Routes>
-        <Route path="/" element={<PostList />} />
-        <Route path="/posts/:postId" element={<Post />} />
-        <Route path="/create-post" element={<CreatePost />} />
-      </Routes>
+      <footer className="mt-8 pt-4 border-t text-center text-gray-500 text-sm">
+        <p>© 2025 Hangover Tales - Where party memories live forever</p>
+      </footer>
     </div>
   );
 };
