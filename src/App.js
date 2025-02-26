@@ -38,7 +38,6 @@ import WhoPays from './pages/WhoPays';
 import NeverHaveIEverPage from './pages/NeverHaveIEver';
 import TruthOrDrinkPage from './pages/TruthOrDrink';
 import DrunkJengaPage from './pages/DrunkJenga';
-import HangoverTales from './pages/HangoverTales';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import './index.css'; 
@@ -57,7 +56,6 @@ export default function App() {
             <Route path="/never-have-i-ever" element={<NeverHaveIEverPage />} />
             <Route path="/truth-or-drink" element={<TruthOrDrinkPage />} />
             <Route path="/drunk-jenga" element={<DrunkJengaPage />} />
-            <Route path="/hangover-tales" element={<HangoverTales />} />
           </Routes>
         </main>
         <Footer />

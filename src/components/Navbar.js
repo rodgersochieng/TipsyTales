@@ -16,7 +16,7 @@ export default function Navbar() {
     { name: 'Drunk Jenga', path: '/drunk-jenga' },
     { name: 'Never Have I Ever', path: '/never-have-i-ever' },
     { name: 'Truth or Drink', path: '/truth-or-drink' },
-    { name: 'Hangover Tales', path: '/hangover-tales' },
+    // { name: 'Hangover Tales', path: '/hangover-tales' },
   ];
 
   return (
